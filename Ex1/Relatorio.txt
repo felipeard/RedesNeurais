@@ -1,0 +1,30 @@
+Exercicio 1 - Perceptron
+Felipe Alegria Rollo Dias	nUSP 9293501
+
+RESUMO:
+	Neste exercicio foi implementado um perceptron do modelo Aveline. Este modelo utiliza a regra Delta (minimos quadrados) para realizar o treinamento do neuronio.
+
+COMO RODAR:
+	O código esta feito para pegar automaticamente todos os arquivos .in e .test da pasta que o .py se encontra. (Deixar todos arquivos na mesma pasta)
+
+RESPOSTA GERADA PELO CODIGO:
+	Testing  example5.test 		# Nome do arquivo
+
+	Expected answer:  1.0 		# Resposta contida dentro do arquivo
+
+	Obtained answer:  1			# Resposta obtida pelo codigo
+
+FUNCOES:
+	Todo o código(ex1.py) esta comentado para maiores detalhes de como o código funciona.
+
+	fnet: Função de ativação do neuronio no molde step
+	
+	matrix: Le os dados de um arquivo e transforma para uma matriz
+
+	answer: Le na ultima linha do arquivo de entrada qual o valor esperado para a resposta
+
+	net: Calcula o valor de net multiplicando todos valores da matriz de entrada pelos respectivos pesos
+
+	adeline_train: Realiza o treinamento do neuronio utilizando os arquivos de treinamento (*.in)
+
+	adeline_test: Testa o perceptron com arquivos de teste (*.test)
