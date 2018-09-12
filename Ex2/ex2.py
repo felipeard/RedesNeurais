@@ -19,10 +19,12 @@ class MLP(object):
 	def df_dnet(f_net):
 		return (f_net * (1 - f_net))
 
-	def architecture(self,input_lenght=10,hidden_lenght=np.log2(10),output_lenght=10,fnet=fnet,df_dnet=df_dnet):
+	def architecture(self,input_lenght=10,hidden_lenght=np.floor(np.log2(10)).astype(np.int),output_lenght=10,fnet=fnet,df_dnet=df_dnet):
 		self.model['input_lenght'] = input_lenght
 		self.model['hidden_lenght'] = hidden_lenght
 		self.model['output_lenght'] = output_lenght
+		self.model['hidden_layer'] = np.random.uniform(-0.5,+0.5,(hidden_lenght,input_lenght+1))
+		self.model['output_layer'] = np.random.uniform(-0.5,+0.5,(output_lenght,hidden_lenght+1))
 		self.model['fnet'] = fnet
 		self.model['df_dnet'] = df_dnet
 
