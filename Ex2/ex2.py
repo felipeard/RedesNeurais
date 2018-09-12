@@ -32,7 +32,14 @@ class MLP(object):
 	def forward(self):
 		return
 
-	def backpropagation(self):
+	def backpropagation(self,X,Y,eta=0.1,max_error=0.0000001,max_iter=2000):
+		counter = 0
+		error = 2*max_error
+
+		while total_error > max_error and counter < max_iter:
+			error = 0
+			
+
 		return
 
 mlp = MLP()
