@@ -31,6 +31,11 @@ class MLP(object):
 
 
 	def forward(self):
+		hidden = self.model['hidden_layer']
+		output = self.model['output_layer']
+
+		net_h = np.matmul(hidden,)
+		print(net_h)
 		return
 
 	def backpropagation(self,X,Y,eta=0.1,max_error=0.0000001,max_iter=2000):
