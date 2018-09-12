@@ -8,7 +8,6 @@ import numpy as np
 class MLP(object):
 
 	model = {}
-	N = 10
 	"""docstring for MLP"""
 	def __init__(self):
 		# Iniatialize MLP class
@@ -20,7 +19,7 @@ class MLP(object):
 	def df_dnet(f_net):
 		return (f_net * (1 - f_net))
 
-	def architecture(self,input_lenght=N*N,hidden_lenght=np.floor(np.log2(N*N)).astype(np.int),output_lenght=N*N,fnet=fnet,df_dnet=df_dnet):
+	def architecture(self,input_lenght=10*10,hidden_lenght=np.floor(np.log2(10*10)).astype(np.int),output_lenght=N*N,fnet=fnet,df_dnet=df_dnet):
 		self.model['input_lenght'] = input_lenght
 		self.model['hidden_lenght'] = hidden_lenght
 		self.model['output_lenght'] = output_lenght
@@ -30,11 +29,11 @@ class MLP(object):
 		self.model['df_dnet'] = df_dnet
 
 
-	def forward(self):
+	def forward(self, X):
 		hidden = self.model['hidden_layer']
 		output = self.model['output_layer']
 
-		net_h = np.matmul(hidden,)
+		net_h = np.matmul(hidden,X)
 		print(net_h)
 		return
 
@@ -53,5 +52,7 @@ class MLP(object):
 
 		return
 
+N = 10 
+X = np.identity(N)
 mlp = MLP()
 print(mlp.model)
