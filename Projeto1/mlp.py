@@ -5,6 +5,7 @@
 
 import numpy as np
 import os
+from sklearn.preprocessing import scale
 
 # Classe que representa uma MLP com sua propria arquitetura
 class MLP(object):
@@ -42,8 +43,8 @@ class MLP(object):
 		#Adicionando o 1 para a multiplicação
 		X = np.concatenate((X,np.array([1])))
 
-		print('hidden=',hidden,'\n')
-		print('output=',output,'\n')
+		#print('hidden=',hidden,'\n')
+		#print('output=',output,'\n')
 		
 		#CAMADA ESCONDIDA
 		net_h = np.matmul(hidden,X)
@@ -81,8 +82,8 @@ class MLP(object):
 			for i in range(0,X.shape[0]):
 				x_i = X[i,:]
 				y_i = Y[i]
-				print('x_i=',x_i,'\n')
-				print('y_i=',y_i,'\n')
+				#print('x_i=',x_i,'\n')
+				#print('y_i=',y_i,'\n')
 
 				#forward
 				fw = self.forward(x_i)
@@ -100,8 +101,8 @@ class MLP(object):
 				dE2_dw_h = delta_h * (np.multiply(-2*fw['df_net_h'],np.array([np.concatenate((x_i,np.array([1])))]).T))
 
 				# Atualização dos pesos
-				print('x_i.size=',x_i.size,'\n')
-				print('bag loko=',np.reshape(np.array([eta*dE2_dw_h]).T,(self.model['hidden_lenght'],x_i.size+1)),'\n')
+				#print('x_i.size=',x_i.size,'\n')
+				#print('bag loko=',np.reshape(np.array([eta*dE2_dw_h]).T,(self.model['hidden_lenght'],x_i.size+1)),'\n')
 				self.model['output_layer'] = self.model['output_layer'] - eta*dE2_dw_o
 				self.model['hidden_layer'] = self.model['hidden_layer'] - np.reshape(np.array([eta*dE2_dw_h]).T,(self.model['hidden_lenght'],x_i.size+1))
 				
@@ -132,7 +133,11 @@ if(1): # If wine database is chosen
 			X = X.astype(np.float)
 			Y = X[:,0]
 			X = X[:,1:X.shape[1]]
-			#print('X=',X)
+			print('X=',X)
+			for i in range(X.shape[1]):
+				X[:,i] = (X[:,i] - np.amin(X[:,i])) / (np.amax(X[:,i]) - np.amin(X[:,i]))
+			#X = scale(X)
+			print('X=',X)
 			#print('Y=',Y)
 
 mlp = MLP()
