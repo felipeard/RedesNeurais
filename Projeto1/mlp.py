@@ -5,6 +5,7 @@
 
 import numpy as np
 import os
+import random
 from sklearn.preprocessing import scale
 
 # Classe que representa uma MLP com sua propria arquitetura
@@ -15,7 +16,8 @@ class MLP(object):
 	# Construtor da classe
 	def __init__(self):
 		# Iniatialize MLP class
-		self.architecture()
+		#self.architecture()
+		return
 
 	# Função de Ativação dos neuronios da MLP
 	def fnet(net):
@@ -26,7 +28,7 @@ class MLP(object):
 		return (f_net * (1 - f_net))
 
 	# Função que inicializa a arquitetura da MLP baseado no problema especifico
-	def architecture(self,input_lenght=13,hidden_lenght=5,output_lenght=1,fnet=fnet,df_dnet=df_dnet):
+	def architecture(self,input_lenght=13,hidden_lenght=5,output_lenght=3,fnet=fnet,df_dnet=df_dnet):
 		self.model['input_lenght'] = input_lenght
 		self.model['hidden_lenght'] = hidden_lenght
 		self.model['output_lenght'] = output_lenght
@@ -58,10 +60,11 @@ class MLP(object):
 		f_net_h_c = np.concatenate((f_net_h,np.array([1])))
 		net_o = np.matmul(output,f_net_h_c)
 		#print('net_o=',net_o,'\n')
+		#print('net_o=',net_o,'\n')
 		f_net_o = self.model['fnet'](net_o)
 		#print('f_net_o=',f_net_o,'\n')
 		df_net_o = self.model['df_dnet'](f_net_o)
-		f_net_o = np.rint(f_net_o)
+		#f_net_o = np.rint(f_net_o)
 
 		return{
 			"f_net_h": f_net_h,
@@ -71,7 +74,7 @@ class MLP(object):
 		}
 
 	# Realiza o treinamento da rede utilizando backpropagation com regra delta
-	def backpropagation(self,X,Y,eta=0.5,max_error=0.0000001,max_iter=5):
+	def backpropagation(self,X,Y,eta=0.5,max_error=0.001,max_iter=2000):
 		counter = 0
 		total_error = 2*max_error
 
@@ -90,6 +93,9 @@ class MLP(object):
 
 				#erro
 				error_o_k = (y_i-fw['f_net_o'])
+				#print('y_i',y_i,'\n')
+				#print('f_net_o',fw['f_net_o'],'\n')
+				#print('error_o_k',error_o_k,'\n')
 				#print('f_net_o=',fw['f_net_o'],'\n')
 				total_error = total_error + np.sum(error_o_k*error_o_k)
 
@@ -113,18 +119,45 @@ class MLP(object):
 
 		return
 
+	def run(self,X,Y,size=2,eta=0.1,max_iter=2000,train_size=0.7,threshold=0.001):
+		ids = random.sample(range(0,X.shape[0]),np.floor(train_size*X.shape[0]).astype(np.int))
+		print('ids',ids,'\n')
+		train_set = X[ids,:]
+		train_classes = Y[ids,:]
+		print('X=',train_set)
+		print('Y=',train_classes)
+
+		self.architecture(input_lenght=X.shape[1],hidden_lenght=size,output_lenght=Y.shape[1])
+		print('MLP architecture created')
+		self.backpropagation(train_set,train_classes)
+		print('Neural Network trained')
+		#print(mlp.forward(X)['f_net_o'])
+
+		correct = 0
+		for i in range(0,10):
+			pass
+
+		return
+
+	#END OF MLP CLASS
+
 # Reads the contents from a file and transforms in matrix
 def matrix(contents):
 	return [item.split(',') for item in contents.split('\n')[:-1]]
 
-#################################################################################
-# INICIO DO PROGRAMA															#
-#################################################################################
+def class_ind(Y):
+	unique_Y = set(Y)
+	#print('unique_Y=',len(unique_Y),'\n')
+	size = (Y.shape[0],len(unique_Y))
+	res = np.zeros(size)
+	for i in range(0,Y.shape[0]):
+		res[i][Y[i].astype(np.int)-1] = 1
+
+	print('res=',res,'\n')
+	return res
 
 
-print("Starting program...\n")
-print("Choose database:\n\t1-Wine.data\n")
-if(1): # If wine database is chosen
+def wine_test():
 	for file in os.listdir():
 		if(file.endswith('.data')):
 			data = open(file).read()
@@ -137,9 +170,22 @@ if(1): # If wine database is chosen
 			for i in range(X.shape[1]):
 				X[:,i] = (X[:,i] - np.amin(X[:,i])) / (np.amax(X[:,i]) - np.amin(X[:,i]))
 			#X = scale(X)
+			Y = class_ind(Y)
 			print('X=',X)
 			#print('Y=',Y)
 
-mlp = MLP()
-mlp.backpropagation(X,Y)
-#print(mlp.forward(X)['f_net_o'])
+
+	mlp = MLP()
+	mlp.run(X,Y)
+	return
+
+
+#################################################################################
+# INICIO DO PROGRAMA															#
+#################################################################################
+
+
+print("Starting program...\n")
+print("Choose database:\n\t1-Wine.data\n")
+if(1): # If wine database is chosen
+	wine_test()
