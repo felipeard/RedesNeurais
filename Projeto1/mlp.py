@@ -6,6 +6,7 @@
 import numpy as np
 import os
 import random
+from prettytable import PrettyTable
 from sklearn.preprocessing import scale
 
 # Classe que representa uma MLP com sua propria arquitetura
@@ -75,7 +76,7 @@ class MLP(object):
 		}
 
 	# Realiza o treinamento da rede utilizando backpropagation com regra delta
-	def backpropagation(self,X,Y,eta=0.5,max_error=0.001,max_iter=2000):
+	def backpropagation(self,X,Y,eta=0.5,max_error=0.000001,max_iter=500):
 		counter = 0
 		total_error = 2*max_error
 
@@ -97,7 +98,7 @@ class MLP(object):
 				#print('y_i',y_i,'\n')
 				#print('f_net_o',fw['f_net_o'],'\n')
 				#print('error_o_k',error_o_k,'\n')
-				#print('f_net_o=',fw['f_net_o'],'\n')
+				
 				total_error = total_error + np.sum(error_o_k*error_o_k)
 
 				#backpropagation / calculo das derivadas
@@ -116,11 +117,12 @@ class MLP(object):
 			# Término da iteração do treinamento
 			total_error = total_error/X.shape[0]
 			counter = counter+1
-			#print("Iter:",counter," Error:",total_error,"\n")
+			if (counter % 100) == 0:
+				print("Iter:",counter," Error:",total_error)
 
 		return
 
-	def run(self,X,Y,size=2,eta=0.1,max_iter=2000,train_size=0.7,threshold=0.001):
+	def run(self,X,Y,size=2,eta=0.1,max_iter=500,train_size=0.7,threshold=0.000001):
 		ids = random.sample(range(0,X.shape[0]),np.floor(train_size*X.shape[0]).astype(np.int))
 		ids_left = diff(range(0,X.shape[0]),ids)
 		#print('ids',ids,'\n')
@@ -139,9 +141,9 @@ class MLP(object):
 		#print('Y=',test_classes)
 
 		self.architecture(input_lenght=X.shape[1],hidden_lenght=size,output_lenght=Y.shape[1])
-		print('MLP architecture created')
+		print('MLP architecture created\nStarting Training')
 		self.backpropagation(train_set,train_classes,eta=eta,max_error=threshold,max_iter=max_iter)
-		print('Neural Network trained')
+		print('Neural Network Trained\nStarting Testing')
 		#print(mlp.forward(X)['f_net_o'])
 
 		correct = 0
@@ -158,10 +160,14 @@ class MLP(object):
 
 			pass
 
+		print('Neural Network Tested')
 		accuracy = correct/test_set.shape[0]
-		print("Accuracy = ", accuracy)
-		return
-
+		error = np.sum((y_i - y_hat_i)**2)/test_set.shape[0]
+		
+		return {
+			"accuracy": accuracy,
+			"error": error
+		}
 	#END OF MLP CLASS
 
 # Reads the contents from a file and transforms in matrix
@@ -183,7 +189,7 @@ def diff(first, second):
         second = set(second)
         return [item for item in first if item not in second]
 
-def wine_test(eta=0.1,max_iter=2000,train_size=0.7):
+def wine_test(eta=0.1,max_iter=500,train_size=0.7):
 	for file in os.listdir():
 		if(file.endswith('.data')):
 			data = open(file).read()
@@ -200,11 +206,38 @@ def wine_test(eta=0.1,max_iter=2000,train_size=0.7):
 			#print('X=',X)
 			#print('Y=',Y)
 
-
+	print('\nPreprocessing Wine Done')
 	mlp = MLP()
-	mlp.run(X,Y,eta=eta,max_iter=max_iter,train_size=train_size)
+	return mlp.run(X,Y,eta=eta,max_iter=max_iter,train_size=train_size)
 
-	return
+def tracks_test(eta=0.1,max_iter=500,train_size=0.7):
+	mlp = MLP()
+	n = 1
+	ret = {}
+	for file in os.listdir():
+		if(file.endswith('.txt')):
+			data = open(file).read()
+			X = matrix(data)
+			X = np.array(X)
+			X = X.astype(np.float)
+			Y = X[:,X.shape[1]-2:X.shape[1]]
+			X = X[:,0:X.shape[1]-2]
+			for i in range(X.shape[1]):
+				X[:,i] = (X[:,i] - np.amin(X[:,i])) / (np.amax(X[:,i]) - np.amin(X[:,i]))
+			for i in range(Y.shape[1]):
+				Y[:,i] = (Y[:,i] - np.amin(Y[:,i])) / (np.amax(Y[:,i]) - np.amin(Y[:,i]))
+			#print('X=',X.shape[1])
+			#print('Y=',Y.shape[1])
+			print('\nPreprocessing Origin of Music Done')
+			res = mlp.run(X,Y,eta=eta,max_iter=max_iter,train_size=train_size)
+			#print('Error=',res['error'])
+			if n == 1:
+				ret['error_1'] = res['error']
+			if n == 2:
+				ret['error_2'] = res['error']
+			n = n+1
+
+	return ret
 
 
 #################################################################################
@@ -213,8 +246,69 @@ def wine_test(eta=0.1,max_iter=2000,train_size=0.7):
 
 
 print("Starting program...\n")
-print("Choose database:\n\t1-Wine.data\n")
-if(1): # If wine database is chosen
-	wine_test(eta=0.1)
-	wine_test(eta=0.3)
-	wine_test(eta=0.5)
+print("Choose database:\n\t1-Wine\n\t2-Geographical Original of Music\n")
+op = input()
+op = int(op)
+
+if op == 1: # If wine database is chosen
+	print('Wine Choosen')
+	table = PrettyTable()
+	table.field_names = ["Number of Cycles","Learning Speed","Training set size","Accuracy"]
+
+	# Variation Learning Speed
+	ret = wine_test(eta=0.1)
+	table.add_row([500,0.1,0.7,ret['accuracy']])
+	ret = wine_test(eta=0.3)
+	table.add_row([500,0.3,0.7,ret['accuracy']])
+	ret = wine_test(eta=0.5)
+	table.add_row([500,0.5,0.7,ret['accuracy']])
+
+	# Variating Number of Cycles
+	ret = wine_test(max_iter=250)
+	table.add_row([250,0.1,0.7,ret['accuracy']])
+	ret = wine_test(max_iter=750)
+	table.add_row([750,0.1,0.7,ret['accuracy']])
+	ret = wine_test(max_iter=1000)
+	table.add_row([1000,0.1,0.7,ret['accuracy']])
+
+	# Variating Training set size
+	ret = wine_test(train_size=0.5)
+	table.add_row([500,0.1,0.5,ret['accuracy']])
+	ret = wine_test(train_size=0.6)
+	table.add_row([500,0.1,0.6,ret['accuracy']])
+	ret = wine_test(train_size=0.9)
+	table.add_row([500,0.1,0.9,ret['accuracy']])
+
+	# Printing Results
+	print(table)
+
+elif op == 2:
+	print('Origin of Music Choosen')
+	table = PrettyTable()
+	table.field_names = ["Number of Cycles","Learning Speed","Training set size","First file Mean Square Error","Second file Mean Square Error"]
+
+	#Variating Learning Speed
+	err = tracks_test(eta=0.1)
+	table.add_row([500,0.1,0.7,err['error_1'],err['error_2']])
+	err = tracks_test(eta=0.3)
+	table.add_row([500,0.3,0.7,err['error_1'],err['error_2']])
+	err = tracks_test(eta=0.5)
+	table.add_row([500,0.5,0.7,err['error_1'],err['error_2']])
+
+	#Variating Number of Cycles
+	err = tracks_test(max_iter=300)
+	table.add_row([300,0.1,0.7,err['error_1'],err['error_2']])
+	err = tracks_test(max_iter=500)
+	table.add_row([700,0.1,0.7,err['error_1'],err['error_2']])
+	err = tracks_test(max_iter=700)
+	table.add_row([1000,0.1,0.7,err['error_1'],err['error_2']])
+
+	#Variating Training Set Size
+	err = tracks_test(train_size=0.5)
+	table.add_row([500,0.1,0.5,err['error_1'],err['error_2']])
+	err = tracks_test(train_size=0.75)
+	table.add_row([500,0.1,0.75,err['error_1'],err['error_2']])
+	err = tracks_test(train_size=0.9)
+	table.add_row([500,0.1,0.9,err['error_1'],err['error_2']])
+
+	print(table)
