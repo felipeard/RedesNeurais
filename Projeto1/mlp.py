@@ -13,6 +13,7 @@ class MLP(object):
 
 	# Dictionary do python para armazenar o modelo da MLP
 	model = {}
+	
 	# Construtor da classe
 	def __init__(self):
 		# Iniatialize MLP class
@@ -115,28 +116,50 @@ class MLP(object):
 			# Término da iteração do treinamento
 			total_error = total_error/X.shape[0]
 			counter = counter+1
-			print("Iter:",counter," Error:",total_error,"\n")
+			#print("Iter:",counter," Error:",total_error,"\n")
 
 		return
 
 	def run(self,X,Y,size=2,eta=0.1,max_iter=2000,train_size=0.7,threshold=0.001):
 		ids = random.sample(range(0,X.shape[0]),np.floor(train_size*X.shape[0]).astype(np.int))
-		print('ids',ids,'\n')
+		ids_left = diff(range(0,X.shape[0]),ids)
+		#print('ids',ids,'\n')
+		#print('ids_left',ids_left,'\n')
+
+		# Training Set
 		train_set = X[ids,:]
 		train_classes = Y[ids,:]
-		print('X=',train_set)
-		print('Y=',train_classes)
+		#print('X=',train_set)
+		#print('Y=',train_classes)
+
+		# Test Set
+		test_set = X[ids_left,:]
+		test_classes = Y[ids_left,:]
+		#print('X=',test_set)
+		#print('Y=',test_classes)
 
 		self.architecture(input_lenght=X.shape[1],hidden_lenght=size,output_lenght=Y.shape[1])
 		print('MLP architecture created')
-		self.backpropagation(train_set,train_classes)
+		self.backpropagation(train_set,train_classes,eta=eta,max_error=threshold,max_iter=max_iter)
 		print('Neural Network trained')
 		#print(mlp.forward(X)['f_net_o'])
 
 		correct = 0
-		for i in range(0,10):
+		for i in range(0,test_set.shape[0]):
+			x_i = test_set[i]
+			y_i = test_classes[i]
+
+
+			y_hat_i = np.round(self.forward(x_i)['f_net_o'])
+			#print('y_hat_i',y_hat_i,'\n')
+			if (np.sum((y_i - y_hat_i)**2) == 0):
+				correct = correct + 1
+			
+
 			pass
 
+		accuracy = correct/test_set.shape[0]
+		print("Accuracy = ", accuracy)
 		return
 
 	#END OF MLP CLASS
@@ -153,11 +176,14 @@ def class_ind(Y):
 	for i in range(0,Y.shape[0]):
 		res[i][Y[i].astype(np.int)-1] = 1
 
-	print('res=',res,'\n')
+	#print('res=',res,'\n')
 	return res
 
+def diff(first, second):
+        second = set(second)
+        return [item for item in first if item not in second]
 
-def wine_test():
+def wine_test(eta=0.1,max_iter=2000,train_size=0.7):
 	for file in os.listdir():
 		if(file.endswith('.data')):
 			data = open(file).read()
@@ -166,17 +192,18 @@ def wine_test():
 			X = X.astype(np.float)
 			Y = X[:,0]
 			X = X[:,1:X.shape[1]]
-			print('X=',X)
+			#print('X=',X)
 			for i in range(X.shape[1]):
 				X[:,i] = (X[:,i] - np.amin(X[:,i])) / (np.amax(X[:,i]) - np.amin(X[:,i]))
 			#X = scale(X)
 			Y = class_ind(Y)
-			print('X=',X)
+			#print('X=',X)
 			#print('Y=',Y)
 
 
 	mlp = MLP()
-	mlp.run(X,Y)
+	mlp.run(X,Y,eta=eta,max_iter=max_iter,train_size=train_size)
+
 	return
 
 
@@ -188,4 +215,6 @@ def wine_test():
 print("Starting program...\n")
 print("Choose database:\n\t1-Wine.data\n")
 if(1): # If wine database is chosen
-	wine_test()
+	wine_test(eta=0.1)
+	wine_test(eta=0.3)
+	wine_test(eta=0.5)
