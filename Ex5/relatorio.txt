@@ -1,0 +1,16 @@
+Exercicio 5- PCA
+Felipe Alegria Rollo Dias	nUSP 9293501
+Leonardo Piccaro Rezende    nUsP 9364611	
+
+RESUMO:
+	Neste exercício implementamos o algoritmo PCA no banco de dados Iris com o intuito de diminuir a sua dimensionalidade
+	de uma forma que a representatividade dos dados perdida na diminuição seja a mínima possível. 
+	O Objetivo do exercício é mostrar a efetividade do algoritmo PCA e como o seu uso facilita na análise dos dados. 
+
+
+COMO RODAR: 
+	O código em python necessita do banco de dados bd.py (presente no arquivo enviado no TIDIA) e de um terminal para rodá-lo.
+
+RESPOSTA GERADA PELO CÓDIGO: 
+	O banco de dados original, sua matriz normalizada, matriz de covariância, autovetores, autovalores e um gráfico de pontos 
+	separado por classes (respostas do banco de dados original). 
